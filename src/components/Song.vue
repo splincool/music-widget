@@ -11,7 +11,7 @@
             class="ma-1">
             <v-layout align-center pa-1>
               <v-flex xs3>
-                <v-btn fab dark medium depressed color="blue">
+                <v-btn fab dark small depressed color="blue">
                   <v-icon large dark>play_arrow</v-icon>
                 </v-btn>
               </v-flex>
