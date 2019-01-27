@@ -18,6 +18,7 @@
           <v-tab
             v-for="item in categories"
             :key="item"
+            @click="chooseNextTab"
           >
             {{ item }}
           </v-tab>
@@ -28,7 +29,21 @@
           v-for="item in categories"
           :key="item"
         >
-          <SongsList :_songs="songs"/>
+          <SongsList :_songs="computedSongs"/>
+          <v-btn 
+            :disabled="currPage === 1" 
+            small 
+            @click="prevPage"
+          >
+              Назад
+          </v-btn>
+          <v-btn
+            :disabled="currPage === pageCount"
+            small 
+            @click="nextPage"
+          >
+            Далее
+          </v-btn>
         </v-tab-item>
       </v-tabs-items>
     </v-flex>
@@ -42,6 +57,9 @@ export default {
   name: 'widgetHeader',
   data () {
     return {
+      currPage: 1,
+      songsPerPage: 8,
+      windowWidth: 0,
       tab: null,
       categories: [
         'По именам', 
@@ -60,8 +78,57 @@ export default {
         'От всей души тебя я поздравляю с Днём Рождения!',
         'Заводное поздравление для мужчины!',
         'Поздравление для головокружительной Женщины!',
-        'Я поднимаю за тебя бокал!'
+        'Я поднимаю за тебя бокал!',
+        'С Новым Годом!'
       ]
+    }
+  },
+  mounted() {
+    this.$nextTick(function() {
+      window.addEventListener('resize', this.getWindowWidth);
+      this.getWindowWidth()
+    })
+
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.getWindowWidth);
+  },
+  watch: {
+    windowWidth () {
+      if (this.windowWidth < 600) {
+        this.songsPerPage = 4
+      } else {
+        this.songsPerPage = 8
+      }
+    }
+  },
+  computed: {
+    pageCount () {
+      var pageCount = Math.ceil(this.songs.length / this.songsPerPage)
+      return pageCount
+    },
+    computedSongs () {
+      var computedSongs = this.songs.filter((item, idx) => {
+        return (idx >= (this.songsPerPage * this.currPage - this.songsPerPage)) && 
+               (idx <= (this.songsPerPage * this.currPage - 1))
+      })
+      return computedSongs
+    }
+  },
+  methods: {
+    nextPage () {
+      this.currPage += 1
+    },
+    prevPage () {
+      if (this.currPage != 1) {
+        this.currPage -= 1
+      }
+    },
+    getWindowWidth() {
+      this.windowWidth = document.documentElement.clientWidth;
+    },
+    chooseNextTab () {
+      this.currPage = 1
     }
   },
   components: {
